@@ -1,6 +1,6 @@
 # BaimoInvSee
 
-BaimoInvSee is a Minecraft Bedrock Edition plugin that runs on PowerNukkitX core. It allows players with the appropriate permissions to view the inventory of any player, whether they are online or not, by executing the command '/invsee <player name>'.
+BaimoInvSee is a Minecraft Bedrock Edition plugin that runs on PowerNukkitX core. It allows players with the appropriate permissions to view the inventory of any player, whether they are online or not, by executing the command `/invsee <player name>`.
 
 ## Installation
 
@@ -8,7 +8,7 @@ To use BaimoInvSee, you need to have a Minecraft Bedrock Edition server running 
 
 ## Usage
 
-To use BaimoInvSee, you must have the appropriate permissions. Once a player has the necessary permissions, they can use the command '/invsee <player name>' to view the inventory of the specified player.
+To use BaimoInvSee, you must have the appropriate permissions. Once a player has the necessary permissions, they can use the command `/invsee <player name>` to view the inventory of the specified player.
 
 ## Contributing
 
