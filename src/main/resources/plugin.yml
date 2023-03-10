@@ -1,0 +1,15 @@
+name: BaimoInvSee
+version: 1.0.0
+author: BaimoQilin
+main: top.baimoqilin.BaimoInvSee.BaimoInvSeePlugin
+api: [1.0.0, 2.0.0]
+depend: [PowerNukkitX]
+description: Open player's inv in game
+commands:
+  baimoinvsee:
+    description: "查看玩家背包"
+    permission: baimoinvsee.use
+permissions:
+  baimoinvsee.use:
+    description: "允许使用BaimoInvSee插件"
+    default: op
