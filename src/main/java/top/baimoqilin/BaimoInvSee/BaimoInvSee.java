@@ -16,7 +16,7 @@ public class BaimoInvSee extends PluginBase {
 
     @Override
     public void onEnable() {
-        this.getLogger().info("BaimoInvSee已被成功加载。版本：1.0.0");
+        this.getLogger().info("BaimoInvSee已被成功加载。版本：1.0.1");
 
         // 加载配置文件
         this.config = new Config(this.getDataFolder() + "/config.yml", Config.YAML);
@@ -31,60 +31,100 @@ public class BaimoInvSee extends PluginBase {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("invsee")) {
-            if (!sender.isOp()) {
-                sender.sendMessage(TextFormat.RED + "你没有权限执行该命令。");
-                return true;
+package top.baimoqilin;
+
+import cn.nukkit.Player;
+import cn.nukkit.command.Command;
+import cn.nukkit.command.CommandSender;
+import cn.nukkit.event.EventHandler;
+import cn.nukkit.event.Listener;
+import cn.nukkit.event.player.PlayerQuitEvent;
+import cn.nukkit.inventory.Inventory;
+import cn.nukkit.inventory.InventoryHolder;
+import cn.nukkit.inventory.InventoryType;
+import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.utils.Config;
+
+import java.io.File;
+import java.util.HashMap;
+
+public class BaimoInvSee extends PluginBase implements Listener, InventoryHolder {
+    private Config config;
+    private int saveInterval;
+    private HashMap<String, Inventory> playerInventories;
+
+    @Override
+    public void onEnable() {
+        getLogger().info("BaimoInvSee已被成功加载。版本：1.0.1");
+
+        getServer().getPluginManager().registerEvents(this, this);
+
+        playerInventories = new HashMap<>();
+
+        config = new Config(new File(getDataFolder(), "config.yml"), Config.YAML);
+        saveInterval = config.getInt("saveInterval", 1);
+        getServer().getScheduler().scheduleDelayedRepeatingTask(this, this::saveAllInventories, saveInterval * 60 * 20, saveInterval * 60 * 20);
+    }
+
+    @Override
+    public void onDisable() {
+        getLogger().info("正在卸载BaimoInvSee...");
+        saveAllInventories();
+    }
+
+    private void saveAllInventories() {
+        for (String playerName : playerInventories.keySet()) {
+            Player player = getServer().getPlayerExact(playerName);
+            if (player != null) {
+                player.getInventory().save();
+            } else {
+                playerInventories.get(playerName).save();
             }
+        }
+    }
 
-            if (args.length != 1) {
-                sender.sendMessage(TextFormat.RED + "用法: /invsee <玩家名>");
-                return true;
-            }
-
-            Player target = this.getServer().getPlayer(args[0]);
-            if (target == null) {
-                sender.sendMessage(TextFormat.RED + "找不到该玩家。");
-                return true;
-            }
-
-            // 获取玩家背包内容
-            String inventory = target.getInventory().getContents().toString();
-
-            // 保存玩家背包内容
-            if (this.config.getBoolean("auto-save")) {
-                this.saveInventory(target.getName(), inventory);
-            }
-
-            sender.sendMessage(TextFormat.YELLOW + target.getName() + " 的背包内容：");
-            sender.sendMessage(inventory);
-
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!sender.isOp()) {
+            sender.sendMessage("你没有权限使用此命令。");
             return true;
         }
 
-        return false;
-    }
-
-    /**
-     * 保存玩家背包
-     *
-     * @param playerName 玩家名
-     * @param inventory  背包内容
-     */
-    private void saveInventory(String playerName, String inventory) {
-        long currentTime = System.currentTimeMillis();
-
-        // 判断距离上次保存是否超过指定时间间隔
-        if (lastSaved.containsKey(playerName) && currentTime - lastSaved.get(playerName) < this.config.getInt("save-interval") * 60 * 1000) {
-            return;
+        if (args.length < 1) {
+            sender.sendMessage("用法: /invsee <player>");
+            return true;
         }
 
-        // 保存背包内容
-        this.config.set("inventories." + playerName, inventory);
-        this.config.save();
+        Player targetPlayer = getServer().getPlayer(args[0]);
+        if (targetPlayer == null) {
+            sender.sendMessage("玩家" + args[0] + "不存在或不在线。");
+            return true;
+        }
 
-        // 更新上次保存时间
-        lastSaved.put(playerName, currentTime);
+        Inventory targetInventory = playerInventories.get(targetPlayer.getName());
+        if (targetInventory == null) {
+            targetInventory = targetPlayer.getInventory();
+            playerInventories.put(targetPlayer.getName(), targetInventory);
+        }
+
+        sender.sendMessage("正在查看玩家" + targetPlayer.getName() + "的背包。");
+        sender.getInventory().setContents(targetInventory.getContents());
+        sender.addWindow(this);
+
+        return true;
     }
 
-}
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        if (player.isOnline()) {
+            playerInventories.put(player.getName(), player.getInventory());
+            player.getInventory().save();
+        }
+    }
 
+    @Override
+    public Inventory getInventory() {
+        return InventoryType.CHEST.getInventory(null);
+    }
+}
