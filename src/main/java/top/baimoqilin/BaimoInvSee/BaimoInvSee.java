@@ -1,36 +1,3 @@
-package top.baimoqilin.BaimoInvSee;
-
-import cn.nukkit.Player;
-import cn.nukkit.command.Command;
-import cn.nukkit.command.CommandSender;
-import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.utils.Config;
-import cn.nukkit.utils.TextFormat;
-
-import java.util.HashMap;
-
-public class BaimoInvSee extends PluginBase {
-
-    private Config config;
-    private HashMap<String, Long> lastSaved = new HashMap<>();
-
-    @Override
-    public void onEnable() {
-        this.getLogger().info("BaimoInvSee已被成功加载。版本：1.0.1");
-
-        // 加载配置文件
-        this.config = new Config(this.getDataFolder() + "/config.yml", Config.YAML);
-        this.saveDefaultConfig();
-    }
-
-    @Override
-    public void onDisable() {
-        this.getLogger().info("正在卸载BaimoInvSee...");
-    }
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (command.getName().equalsIgnoreCase("invsee")) {
 package top.baimoqilin;
 
 import cn.nukkit.Player;
