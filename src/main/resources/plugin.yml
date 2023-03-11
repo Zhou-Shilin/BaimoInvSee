@@ -1,7 +1,7 @@
 name: BaimoInvSee
-version: 1.0.0
+version: 1.0.1
 author: BaimoQilin
-main: top.baimoqilin.BaimoInvSee.BaimoInvSeePlugin
+main: top.baimoqilin.BaimoInvSee.BaimoInvSee
 api: [1.0.0, 2.0.0]
 depend: [PowerNukkitX]
 description: Open player's inv in game
