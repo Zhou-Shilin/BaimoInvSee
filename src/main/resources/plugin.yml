@@ -1,0 +1,10 @@
+name: BaimoInvSee
+version: 1.0.1
+author: BaimoQilin
+api: [1.0.0, 2.0.0]
+main: top.baimoqilin.BaimoInvSee.BaimoInvSee
+commands:
+  invsee:
+    description: View and modify another player's inventory
+    usage: /invsee <player>
+    permission: baimoinvsee.use
