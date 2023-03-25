@@ -41,6 +41,18 @@ public class BaimoInvSee extends PluginBase implements Listener {
                 } else {
                     sender.sendMessage(TextFormat.RED + "Player not found.");
                 }
+            } else if (args.length == 2 && args[0].equalsIgnoreCase("invex") && sender.isOp()) {
+                Player player1 = this.getServer().getPlayer(args[1]);
+                Player player2 = this.getServer().getPlayer(args[2]);
+                if (player1 != null && player2 != null) {
+                    Inventory inventory1 = player1.getInventory();
+                    Inventory inventory2 = player2.getInventory();
+                    player1.getInventory().setContents(inventory2.getContents());
+                    player2.getInventory().setContents(inventory1.getContents());
+                    sender.sendMessage(TextFormat.GREEN + "Swapped " + player1.getName() + "'s and " + player2.getName() + "'s inventories.");
+                } else {
+                    sender.sendMessage(TextFormat.RED + "One or both players not found.");
+                }
             } else {
                 sender.sendMessage(TextFormat.RED + "Usage: /invsee <player>");
             }
