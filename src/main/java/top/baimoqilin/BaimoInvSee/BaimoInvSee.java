@@ -3,66 +3,68 @@ package top.baimoqilin.BaimoInvSee;
 import cn.nukkit.Player;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.event.EventHandler;
+import cn.nukkit.event.Listener;
+import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.InventoryType;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.TextFormat;
 
 import java.util.HashMap;
-import java.util.Map;
 
-public class BaimoInvSee extends PluginBase {
+public class BaimoInvSee extends PluginBase implements Listener {
 
-    private Map<String, Inventory> playerInventories = new HashMap<>();
+    private HashMap<String, Inventory> inventories = new HashMap<>();
 
     @Override
     public void onEnable() {
-        getLogger().info(TextFormat.GREEN + "BaimoInvSee has been enabled!");
-    }
-
-    @Override
-    public void onDisable() {
-        for (Player player : this.getServer().getOnlinePlayers().values()) {
-            playerInventories.put(player.getName(), player.getInventory());
-        }
-        getLogger().info(TextFormat.RED + "BaimoInvSee has been disabled!");
+        this.getServer().getPluginManager().registerEvents(this, this);
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("invsee")) {
-            if (sender.isOp()) {
-                if (args.length == 1) {
-                    Player target = this.getServer().getPlayer(args[0]);
-                    if (target != null) {
-                        Inventory inv = target.getInventory();
-                        sender.sendMessage(TextFormat.GREEN + "Displaying " + target.getName() + "'s inventory:");
+            if (args.length == 1) {
+                Player target = this.getServer().getPlayer(args[0]);
+                if (target != null) {
+                    if (sender.isOp()) {
+                        Inventory inventory = target.getInventory();
+                        inventories.put(target.getName(), inventory);
+                        sender.sendMessage(TextFormat.GREEN + "Opened " + target.getName() + "'s inventory.");
                         if (sender instanceof Player) {
-                            ((Player) sender).addWindow(inv);
+                            ((Player) sender).addWindow(inventory);
                         }
-                        return true;
                     } else {
-                        if (playerInventories.containsKey(args[0])) {
-                            Inventory inv = playerInventories.get(args[0]);
-                            sender.sendMessage(TextFormat.GREEN + "Displaying " + args[0] + "'s inventory:");
-                            if (sender instanceof Player) {
-                                ((Player) sender).addWindow(inv);
-                            }
-                            return true;
-                        } else {
-                            sender.sendMessage(TextFormat.RED + "Player not found!");
-                            return true;
-                        }
+                        sender.sendMessage(TextFormat.RED + "You do not have permission to use this command.");
                     }
                 } else {
-                    sender.sendMessage(TextFormat.RED + "Usage: /invsee <player>");
-                    return true;
+                    sender.sendMessage(TextFormat.RED + "Player not found.");
                 }
             } else {
-                sender.sendMessage(TextFormat.RED + "You do not have permission to use this command!");
-                return true;
+                sender.sendMessage(TextFormat.RED + "Usage: /invsee <player>");
             }
+            return true;
         }
         return false;
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        Inventory inventory = player.getInventory();
+        inventories.put(player.getName(), inventory);
+    }
+
+    public Inventory getSavedInventory(String playerName) {
+        return inventories.get(playerName);
+    }
+
+    public boolean hasSavedInventory(String playerName) {
+        return inventories.containsKey(playerName);
+    }
+
+    public void removeSavedInventory(String playerName) {
+        inventories.remove(playerName);
     }
 }
